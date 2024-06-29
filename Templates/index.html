@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  
+  <meta charset="UTF-8">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Performance Monitor</title>
+
+  
+  
+  <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .metrics {
+            margin-bottom: 20px;
+        }
+        .alerts {
+            color: red;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        td {
+            color: #333;
+        }
+    </style>
+  
+  <script>
+        function fetchMetrics() {
+            fetch('/metrics')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('cpu_load').textContent = data.cpu_load + '%';
+                    document.getElementById('memory_usage').textContent = data.memory_usage + '%';
+                    document.getElementById('disk_usage').textContent = data.disk_usage + '%';
+                    document.getElementById('temperature').textContent = data.temperature ? data.temperature.toFixed(2) + '°C' : 'Not available';
+                    document.getElementById('bytes_sent').textContent = data.bytes_sent;
+                    document.getElementById('bytes_recv').textContent = data.bytes_recv;
+
+                    const alertsContainer = document.getElementById('alerts');
+                    alertsContainer.innerHTML = '';
+                    data.alerts.forEach(alert => {
+                        const alertElem = document.createElement('div');
+                        alertElem.textContent = alert;
+                        alertsContainer.appendChild(alertElem);
+                    });
+
+                    document.getElementById('file_location').innerHTML = `<a href="/download/${data.file_location.split('\\').pop()}" target="_blank">${data.file_location}</a>`;
+                });
+        }
+
+        setInterval(fetchMetrics, 5000);
+    </script>
+</head><body>
+<h1>{{ machine_name }} Performance Monitor</h1>
+
+<br>
+
+<table>
+
+  <thead> <tr>
+    <th>CPU Load</th>
+    <th>Memory Usage</th>
+    <th>Disk Usage</th>
+    <th>Temperature</th>
+    <th>Bytes Sent</th>
+    <th>Bytes Received</th>
+  </tr>
+  </thead> <tbody>
+    <tr>
+      <td><span id="cpu_load">Loading...</span></td>
+      <td><span id="memory_usage">Loading...</span></td>
+      <td><span id="disk_usage">Loading...</span></td>
+      <td><span id="temperature">Loading...</span></td>
+      <td><span id="bytes_sent">Loading...</span></td>
+      <td><span id="bytes_recv">Loading...</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<br>
+
+<div> <strong>Excel File Location:</strong> <span id="file_location">Loading...</span>
+</div>
+
+<br>
+
+<div class="alerts" id="alerts"> <strong>Alerts:</strong> </div>
+
+</body></html>
